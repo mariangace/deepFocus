@@ -3,26 +3,33 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlay, faStop, faPause } from "@fortawesome/free-solid-svg-icons";
 import "./Timer.css";
 
-const DEFAULT_TIME = 5;
+const DEFAULT_TIME = 1 * 60;
 
-export default function Timer() {
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME * 60); // 45 minutes in seconds
+interface TimerProps {
+  onTimerComplete: () => void;
+}
+
+export default function Timer({ onTimerComplete }: TimerProps) {
+  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME); // 45 minutes in seconds
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     let interval: any = null;
     if (isActive) {
       interval = setInterval(() => {
-        setTimeLeft(timeLeft - 1);
+        if (timeLeft > 0) {
+          setTimeLeft(timeLeft - 1);
+        } else {
+          onTimerComplete();
+          reset();
+        }
       }, 1000);
-    } else if (!isActive && timeLeft !== 0) {
-      clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, onTimerComplete]);
 
   const reset = () => {
-    setTimeLeft(DEFAULT_TIME * 60);
+    setTimeLeft(DEFAULT_TIME);
     setIsActive(false);
   };
 
